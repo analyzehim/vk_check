@@ -1,0 +1,5 @@
+<config>
+    <interval>0.5</interval>
+    <test>0</test>
+    <heartbeat_interval>7200</heartbeat_interval>
+</config>
