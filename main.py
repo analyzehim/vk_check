@@ -10,7 +10,7 @@ def parse_mes(vk_response):
         mes_text = mes['body'].encode('utf-8')
         mes_id = mes['mid']
         user_id = mes['uid']
-        if mes['read_state'] == 0 or not 'chat_id' in mes:
+        if mes['read_state'] == 0 and not 'chat_id' in mes:
             if cash.check_message(mes_id):
                 continue
             else:
@@ -19,7 +19,10 @@ def parse_mes(vk_response):
                 if not username:
                     username = vkbot.get_user(user_id)
                     cash.add_user(user_id, username)
-                not_read_mes.append(Message(mes_text, username.encode('utf-8')))
+                try:
+                    not_read_mes.append(Message(mes_text, username.encode('utf-8')))
+                except:
+                    not_read_mes.append(Message(mes_text, username))
 
     return not_read_mes
 

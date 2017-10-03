@@ -9,7 +9,7 @@ class VKbot:
         config = Config()
         self.proxy = config.Mode
         if self.proxy:
-            self.proxies = config.proxies()
+            self.proxies = config.proxies
         self.vk_token = config.VkToken
         self.host = config.host
         self.URL = config.VK_URL
