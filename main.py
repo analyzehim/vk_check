@@ -1,8 +1,9 @@
 from telegram_proto import Telebot
 from vk_proto import VKbot
 from sqlite_proto import Cash
-from common_proto import Message
+from common_proto import Message, log_event
 
+import time
 
 def parse_mes(vk_response):
     not_read_mes = []
@@ -23,14 +24,22 @@ def parse_mes(vk_response):
                     not_read_mes.append(Message(mes_text, username.encode('utf-8')))
                 except:
                     not_read_mes.append(Message(mes_text, username))
-
+    if not_read_mes == []:
+        log_event('no new mes')
     return not_read_mes
 
 if __name__ == "__main__":
     vkbot = VKbot()
     cash = Cash()
     telebot = Telebot()
+
     #vkbot.send_text(vkbot.chat_id, "Run on {0}".format(vkbot.host))
     #telebot.send_text(telebot.chat_id, "Run on {0}".format(telebot.host))
-    for mes in parse_mes(vkbot.get_mes()):
-        telebot.send_text(telebot.chat_id, str(mes))
+    while (True):
+        try:
+            for mes in parse_mes(vkbot.get_mes()):
+                telebot.send_text(telebot.chat_id, str(mes))
+            time.sleep(vkbot.interval)
+        except Exception as e:
+            log_event(e)
+

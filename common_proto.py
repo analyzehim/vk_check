@@ -76,4 +76,5 @@ class Config:
             self.Test = True
         else:
             self.Test = False
-        self.count = root.findall('count')[0].text
+        self.count = int(root.findall('count')[0].text)
+        self.interval = int(root.findall('interval')[0].text)
