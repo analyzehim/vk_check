@@ -13,6 +13,7 @@ class VKbot:
         self.vk_token = config.VkToken
         self.host = config.host
         self.URL = config.VK_URL
+        self.count = config.count
         self.chat_id = config.VK_EUGENE_ID
         if not self.proxy:
             log_event("VKbot Init completed, host: " + str(self.host))
@@ -38,6 +39,29 @@ class VKbot:
             return False
         return True
 
+    def get_user(self, user_id):
+        try:
+            log_event('get user {0}'.format(user_id))  # Logging
+        except:
+            log_event('Error with LOGGING')
+        if not self.proxy:
+            request = requests.get(self.URL +
+                                   'users.get?access_token={0}&user_ids={1}'.format(self.vk_token, user_id)
+                                   ) # HTTP request
+        else:
+            request = requests.get(self.URL +
+                                   'users.get?access_token={0}&user_ids={1}'.format(self.vk_token, user_id),
+                                    proxies=self.proxies)  # HTTP request with proxy
+        if not request.status_code == 200:
+            log_event(request.text)
+            return []
+
+        print request.json()
+        first_name = request.json()['response'][0]['first_name'].encode('utf-8')
+        last_name = request.json()['response'][0]['last_name'].encode('utf-8')
+        name = '{0} {1}'.format(first_name, last_name )
+        return name
+
     def get_mes(self):
         try:
             log_event('VK get messages')  # Logging
@@ -46,19 +70,16 @@ class VKbot:
 
         if not self.proxy:
             request = requests.get(self.URL +
-                                   'messages.get?access_token={0}&count=100'.format(self.vk_token)) # HTTP request
+                                   'messages.get?access_token={0}&count={1}'.format(self.vk_token, self.count)) # HTTP request
 
         else:
             request = requests.get(self.URL +
-                                   'messages.get?access_token={0}&count=100'.format(self.vk_token),
+                                   'messages.get?access_token={0}&count={1}'.format(self.vk_token, self.count),
                                     proxies=self.proxies)  # HTTP request with proxy
         if not request.status_code == 200:
             log_event(request.text)
             return []
         return request.json()
-
-
-
 
 '''
 

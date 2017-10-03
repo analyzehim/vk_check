@@ -28,9 +28,10 @@ class Cash:
         return
 
     def check_user(self, user_id):
-        self.cur.execute('SELECT * FROM Users WHERE mes_id ={0}'.format(user_id))
-        if self.cur.fetchone():
-            return True
+        self.cur.execute('SELECT * FROM Users WHERE user_id ={0}'.format(user_id))
+        ans = self.cur.fetchone()
+        if ans:
+            return ans[1]
         else:
             return False
 
@@ -38,3 +39,4 @@ class Cash:
         self.cur.execute('''INSERT INTO  Users(user_id, username) VALUES ('{0}','{1}')'''.format(user_id, username))
         self.con.commit()
         return
+

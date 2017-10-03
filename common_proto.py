@@ -32,11 +32,15 @@ def log_event(text):
 
 class Message:
     def __init__(self, text='', user=''):
-        self.text = text.encode('utf-8')
+        self.text = text
         self.user = user
+        self.str = '{0}: {1}'.format(self.user, self.text)
 
     def __str__(self):
-        return '{0}: {1}'.format(self.user, self.text)
+        return self.str
+
+    def __len__(self):
+        return len(self.str)
 
 
 class Config:
@@ -72,3 +76,4 @@ class Config:
             self.Test = True
         else:
             self.Test = False
+        self.count = root.findall('count')[0].text
