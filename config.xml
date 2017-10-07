@@ -1,6 +1,5 @@
 <config>
     <interval>60</interval>
-    <test>0</test>
-    <heartbeat_interval>7200</heartbeat_interval>
+    <test>1</test>
     <count>10</count>
 </config>

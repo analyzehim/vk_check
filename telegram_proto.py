@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-import requests
-
 from common_proto import *
+import requests
 
 
 class Telebot:
@@ -24,63 +23,11 @@ class Telebot:
         if self.proxy:
             log_event("Telebot init completed with proxy, host: " + str(self.host))
 
-    def get_updates(self):
-        data = {'offset': self.offset + 1, 'limit': 5, 'timeout': 0}
-        if not self.proxy:
-            request = requests.post(self.URL + self.TOKEN + '/getUpdates', data=data)
-        if self.proxy:
-            request = requests.post(self.URL + self.TOKEN + '/getUpdates', data=data, proxies=self.proxies)
-        if (not request.status_code == 200) or (not request.json()['ok']):
-            return False
-
-        if not request.json()['result']:
-            return
-        parametersList = []
-        for update in request.json()['result']:
-            self.offset = update['update_id']
-
-            if 'message' not in update or 'text' not in update['message']:
-                continue
-
-            from_id = update['message']['chat']['id']  # Chat ID
-            author_id = update['message']['from']['id']  # Creator ID
-            message = update['message']['text']
-            date = update['message']['date']
-            try:
-                name = update['message']['chat']['first_name']
-            except:
-                name = update['message']['from']['first_name']
-            parameters = (name, from_id, message, author_id, date)
-            parametersList.append(parameters)
-            try:
-                log_event('from %s (id%s): "%s" with author: %s; time:%s' % parameters)
-            except:
-                pass
-        return parametersList
-
-    def send_text_with_keyboard(self, chat_id, text, keyboard):
-        try:
-            log_event('Sending to %s: %s; keyboard: %s' % (chat_id, text, keyboard))  # Logging
-        except:
-            log_event('Error with LOGGING')
-        json_data = {"chat_id": chat_id, "text": text,
-                     "reply_markup": {"keyboard": keyboard, "one_time_keyboard": True}}
-        if not self.proxy:  # no proxy
-            request = requests.post(self.URL + self.TOKEN + '/sendMessage', json=json_data)  # HTTP request
-
-        if self.proxy:
-            request = requests.post(self.URL + self.TOKEN + '/sendMessage', json=json_data,
-                                    proxies=self.proxies)  # HTTP request with proxy
-
-        if not request.status_code == 200:  # Check server status
-            return False
-        return request.json()['ok']  # Check API
-
     def send_text(self, chat_id, text):
         try:
             log_event('Telegram sending to %s: %s' % (chat_id, text))  # Logging
-        except:
-            log_event('Error with LOGGING')
+        except Exception as e:
+            log_event('Error with LOGGING: {0}'.format(e))
         data = {'chat_id': chat_id, 'text': text}  # Request create
         if not self.proxy:
             request = requests.post(self.URL + self.TOKEN + '/sendMessage', data=data)  # HTTP request
@@ -100,5 +47,4 @@ class Telebot:
             requests.post(self.URL + self.TOKEN + '/sendMessage', data=data)  # HTTP request
 
         if self.proxy:
-            requests.post(self.URL + self.TOKEN + '/sendMessage', data=data,
-                                    proxies=self.proxies)  # HTTP request with proxy
+            requests.post(self.URL + self.TOKEN + '/sendMessage', data=data, proxies=self.proxies)  # HTTP with proxy
