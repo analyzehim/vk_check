@@ -1,5 +1,4 @@
 <config>
-    <interval>60</interval>
-    <test>1</test>
+    <interval>10</interval>
     <count>10</count>
 </config>

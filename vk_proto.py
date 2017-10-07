@@ -7,19 +7,17 @@ import requests
 class VKbot:
     def __init__(self):
         config = Config()
-        self.proxy = config.Mode
+        self.proxy = config.proxyMode
         if self.proxy:
             self.proxies = config.proxies
         self.vk_token = config.VkToken
-        self.host = config.host
         self.URL = config.VK_URL
         self.count = config.count
-        self.chat_id = config.VK_EUGENE_ID
         self.interval = config.interval
         if not self.proxy:
-            log_event("VKbot Init completed, host: " + str(self.host))
+            log_event("VKbot Init completed, host: " + get_host())
         if self.proxy:
-            log_event("VKbot Init completed with proxy, host: " + str(self.host))
+            log_event("VKbot Init completed with proxy, host: " + get_host())
 
     def send_text(self, chat_id, text):
         log_event('VK sending to %s: %s' % (chat_id, text))  # Logging

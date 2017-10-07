@@ -6,22 +6,16 @@ import requests
 class Telebot:
     def __init__(self):
         config = Config()
-        self.proxy = config.Mode
-        self.test = config.Test
-        if not self.test:
-            self.TOKEN = config.TelegramToken
-        else:
-            self.TOKEN = config.TelegramTestToken
+        self.proxy = config.proxyMode
+        self.TOKEN = config.TelegramToken
         self.URL = config.Telegram_URL
         if self.proxy:
             self.proxies = config.proxies
-        self.chat_id = config.TELEGRAM_EUGENE_ID
-        self.offset = 0
-        self.host = config.host
+        self.chat_id = config.TELEGRAM_ADMIN
         if not self.proxy:
-            log_event("Telebot init completed, host: " + str(self.host))
-        if self.proxy:
-            log_event("Telebot init completed with proxy, host: " + str(self.host))
+            log_event("Telebot init completed, host: " + get_host())
+        else:
+            log_event("Telebot init completed with proxy, host: " + get_host())
 
     def send_text(self, chat_id, text):
         try:
