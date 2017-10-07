@@ -7,6 +7,7 @@ class Telebot:
     def __init__(self):
         config = Config()
         self.proxy = config.proxyMode
+        self.offset = 0
         self.TOKEN = config.TelegramToken
         self.URL = config.Telegram_URL
         if self.proxy:
@@ -34,11 +35,33 @@ class Telebot:
             return False
         return request.json()['ok']  # Check API
 
-    def ping(self):
-        log_event('Sending to %s: %s' % (self.chat_id, 'ping'))
-        data = {'chat_id': self.chat_id, 'text': 'ping'}
+    def get_updates(self):
+        data = {'offset': self.offset + 1, 'limit': 5, 'timeout': 0}
         if not self.proxy:
-            requests.post(self.URL + self.TOKEN + '/sendMessage', data=data)  # HTTP request
+            request = requests.post(self.URL + self.TOKEN + '/getUpdates', data=data)
+        else:
+            request = requests.post(self.URL + self.TOKEN + '/getUpdates', data=data, proxies=self.proxies)
+        if (not request.status_code == 200) or (not request.json()['ok']):
+            return False
+        if not request.json()['result']:
+            return
+        print request.text
+        parametersList = []
+        for update in request.json()['result']:
+            self.offset = update['update_id']
 
-        if self.proxy:
-            requests.post(self.URL + self.TOKEN + '/sendMessage', data=data, proxies=self.proxies)  # HTTP with proxy
+            if 'message' not in update or 'text' not in update['message']:
+                continue
+            message = update['message']
+            print message
+            parameters = {'author_name': message['from']['first_name'],
+                          'chat_id': message['chat']['id'],
+                          'body': message['text'],
+                          'author_id': message['from']['id'],
+                          'date': message['date']}
+            parametersList.append(parameters)
+            try:
+                log_event('from %s (id%s): "%s" with author: %s; time:%s' % parameters)
+            except:
+                pass
+        return parametersList

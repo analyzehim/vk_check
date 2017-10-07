@@ -28,12 +28,25 @@ def parse_mes(vk_response):
         log_event('no new mes')
     return unread_mes
 
+def exit_check(update_list):
+    if update_list:
+        for message in update_list:
+            if message['body'] =='exit':
+                return True
+    return False
+
 if __name__ == "__main__":
     vk_bot = VKbot()
     cashDB = Cash()
     telegram_bot = Telebot()
     while True:
         try:
+            update_list = telegram_bot.get_updates()
+            if exit_check(update_list):
+                telegram_bot.send_text(telegram_bot.chat_id, "EXIT COMMAND")
+                log_event("EXIT COMMAND")
+                telegram_bot.get_updates() #dirty hack (without this, foreverexit)
+                break
             for mes in parse_mes(vk_bot.get_mes()):
                 telegram_bot.send_text(telegram_bot.chat_id, str(mes))
             time.sleep(vk_bot.interval)
