@@ -1,17 +1,17 @@
 from telegram_proto import Telebot
-from vk_proto import VKbot
+from vk_proto import VkBot
 from sqlite_proto import Cash
-from common_proto import VK_Message, log_event
+from common_proto import VkMessage, log_event
 import time
 
 
-def parse_mes(vk_response):
+def get_unread_messages(vk_response):  # check vk, and return unread messages
     unread_mes = []
-    for message in vk_response['response'][1:]:
-        mes_text = message['body'].encode('utf-8')
-        mes_id = message['mid']
-        user_id = message['uid']
-        if message['read_state'] == 0 and 'chat_id' not in message:
+    for vk_message in vk_response['response'][1:]:
+        mes_text = vk_message['body'].encode('utf-8')
+        mes_id = vk_message['mid']
+        user_id = vk_message['uid']
+        if vk_message['read_state'] == 0 and 'chat_id' not in vk_message:  # if message is unread, and not in chat
             if cashDB.check_message(mes_id):
                 continue
             else:
@@ -21,34 +21,35 @@ def parse_mes(vk_response):
                     username = vk_bot.get_user(user_id)
                     cashDB.add_user(user_id, username)
                 try:
-                    unread_mes.append(VK_Message(mes_text, username.encode('utf-8')))
-                except:
-                    unread_mes.append(VK_Message(mes_text, username))
+                    unread_mes.append(VkMessage(mes_text, username.encode('utf-8')))
+                except:  # dirty hack for russian letters
+                    unread_mes.append(VkMessage(mes_text, username))
     if not unread_mes:
         log_event('no new mes')
     return unread_mes
 
 
-def exit_check(update_list):
+def exit_check(update_list): # if you wanna terminate, just text exit to bot
     if update_list:
-        for message in update_list:
-            if message['text'] =='exit':
+        for telegram_message in update_list:
+            if telegram_message['text'] =='exit':
                 return True
     return False
+
 
 def mes_check(update_list):
     if not update_list:
         return False
-    for mes in update_list:
-        if 'reply_mes' in mes:
-            recipient_name = mes['reply_mes'].split(':')[0].encode('utf-8')
-            mes_text = mes['text'].encode('utf-8')
-            return [recipient_name, mes_text]
+    for telegram_message in update_list:
+        if 'reply_mes' in telegram_message:
+            recipient_name = telegram_message['reply_mes'].split(':')[0].encode('utf-8')
+            mes_text = telegram_message['text'].encode('utf-8')
+            return {'recipient_name': recipient_name, 'text': mes_text}
     return False
 
 
 if __name__ == "__main__":
-    vk_bot = VKbot()
+    vk_bot = VkBot()
     cashDB = Cash()
     telegram_bot = Telebot()
     while True:
@@ -58,7 +59,7 @@ if __name__ == "__main__":
             if new_update:
                 update_list += new_update
             else:
-                break
+                break  # this means, what no have new updates
 
         if exit_check(update_list):
                 telegram_bot.send_text(telegram_bot.chat_id, "EXIT COMMAND")
@@ -67,11 +68,11 @@ if __name__ == "__main__":
 
         check_result = mes_check(update_list)
         if check_result:
-                chat_id = cashDB.get_user_id(check_result[0])
-                text = check_result[1]
-                vk_bot.send_text(chat_id, text)
+                recipient_id = cashDB.get_user_id(check_result['recipient_name'])
+                text = check_result['text']
+                vk_bot.send_text(recipient_id, text)
 
-        for mes in parse_mes(vk_bot.get_mes()):
+        for mes in get_unread_messages(vk_bot.get_mes()):
                 telegram_bot.send_text(telegram_bot.chat_id, str(mes))
         time.sleep(vk_bot.interval)
 

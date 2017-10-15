@@ -4,7 +4,7 @@ from common_proto import *
 import requests
 
 
-class VKbot:
+class VkBot:
     def __init__(self):
         config = Config()
         self.proxy = config.proxyMode
@@ -16,9 +16,9 @@ class VKbot:
         self.interval = config.interval
         self.chat_id = config.VK_ADMIN
         if not self.proxy:
-            log_event("VKbot Init completed, host: " + get_host())
+            log_event("VkBot Init completed, host: " + get_host())
         if self.proxy:
-            log_event("VKbot Init completed with proxy, host: " + get_host())
+            log_event("VkBot Init completed with proxy, host: " + get_host())
 
     def send_text(self, chat_id, text):
         log_event('VK sending to %s: %s' % (chat_id, text))  # Logging

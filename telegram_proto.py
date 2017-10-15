@@ -45,7 +45,7 @@ class Telebot:
             return False
         if not request.json()['result']:
             return
-        parametersList = []
+        update_list = []
         for update in request.json()['result']:
             self.offset = update['update_id']
 
@@ -64,12 +64,5 @@ class Telebot:
                             'update_id': self.offset}
             if 'reply_to_message' in message:
                 telegram_mes['reply_mes'] = message['reply_to_message']['text']
-            parametersList.append(telegram_mes)
-            '''
-            What a heck below?
-            try:
-                log_event('from %s (id%s): "%s" with author: %s; time:%s' % telegram_mes)
-            except:
-                pass
-            '''
-        return parametersList
+                update_list.append(telegram_mes)
+        return update_list

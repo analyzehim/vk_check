@@ -34,7 +34,7 @@ def log_event(text):
     return
 
 
-class VK_Message:
+class VkMessage:
     def __init__(self, text='', user=''):
         self.text = text
         self.user = user
