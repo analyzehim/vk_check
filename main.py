@@ -32,28 +32,19 @@ def parse_mes(vk_response):
 def exit_check(update_list):
     if update_list:
         for message in update_list:
-            if message['body'] =='exit':
+            if message['text'] =='exit':
                 return True
     return False
 
 def mes_check(update_list):
     if not update_list:
         return False
-    forward_flag = False
     for mes in update_list:
-        if 'forward' in mes:
-            forward_flag = True
-            recipient_name = mes['body'].split(':')[0]
-            update_id = mes['update_id']
-
-    if forward_flag:
-        for mes in update_list:
-            if mes['update_id'] == update_id - 1:
-                mes_text = mes['body']
-        print recipient_name, mes_text
-
-    return [recipient_name, mes_text]
-
+        if 'reply_mes' in mes:
+            recipient_name = mes['reply_mes'].split(':')[0].encode('utf-8')
+            mes_text = mes['text'].encode('utf-8')
+            return [recipient_name, mes_text]
+    return False
 
 
 if __name__ == "__main__":
@@ -76,8 +67,9 @@ if __name__ == "__main__":
 
         check_result = mes_check(update_list)
         if check_result:
-                print check_result[0]
-                print check_result[1]
+                chat_id = cashDB.get_user_id(check_result[0])
+                text = check_result[1]
+                vk_bot.send_text(chat_id, text)
 
         for mes in parse_mes(vk_bot.get_mes()):
                 telegram_bot.send_text(telegram_bot.chat_id, str(mes))

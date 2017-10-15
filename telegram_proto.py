@@ -58,12 +58,12 @@ class Telebot:
 
             telegram_mes = {'author_name': message['from']['first_name'],
                             'chat_id': message['chat']['id'],
-                            'body': message['text'],
+                            'text': message['text'],
                             'author_id': message['from']['id'],
                             'date': message['date'],
                             'update_id': self.offset}
-            if 'forward_date' in message:
-                telegram_mes['forward'] = True
+            if 'reply_to_message' in message:
+                telegram_mes['reply_mes'] = message['reply_to_message']['text']
             parametersList.append(telegram_mes)
             '''
             What a heck below?

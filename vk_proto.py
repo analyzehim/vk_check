@@ -14,6 +14,7 @@ class VKbot:
         self.URL = config.VK_URL
         self.count = config.count
         self.interval = config.interval
+        self.chat_id = config.VK_ADMIN
         if not self.proxy:
             log_event("VKbot Init completed, host: " + get_host())
         if self.proxy:

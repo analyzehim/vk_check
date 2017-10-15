@@ -2,5 +2,6 @@
     <proxy>[scheme]://[login]:[password]@[proxy_url]</proxy>
     <telegram_token>[Your bot token]</telegram_token>
     <telegram_id>[Your telegram ID]</telegram_id>
+    <vk_id>[Your vk ID]</vk_id>
     <vk_token>[Your vk token]</vk_token>
 </config>

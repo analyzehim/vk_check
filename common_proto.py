@@ -66,6 +66,7 @@ class Config:
             requests.get('https://www.ya.ru', proxies=proxies)
             self.proxyMode = True
         self.TELEGRAM_ADMIN = root.findall('telegram_id')[0].text
+        self.VK_ADMIN = root.findall('vk_id')[0].text
         self.Telegram_URL = 'https://api.telegram.org/bot'  # HTTP Bot API URL
         self.VK_URL = 'https://api.vk.com/method/'
         tree = ET.parse('config.xml')

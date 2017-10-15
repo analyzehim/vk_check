@@ -41,9 +41,9 @@ class Cash:
         return
 
     def get_user_id(self, username):
-        self.cur.execute('SELECT * FROM Users WHERE username ={0}'.format(username))
+        self.cur.execute('SELECT * FROM Users WHERE username ="{0}"'.format(username))
         ans = self.cur.fetchone()
         if ans:
-            return ans[1]
+            return ans[0]
         else:
             return False
