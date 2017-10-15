@@ -40,3 +40,10 @@ class Cash:
         self.con.commit()
         return
 
+    def get_user_id(self, username):
+        self.cur.execute('SELECT * FROM Users WHERE username ={0}'.format(username))
+        ans = self.cur.fetchone()
+        if ans:
+            return ans[1]
+        else:
+            return False

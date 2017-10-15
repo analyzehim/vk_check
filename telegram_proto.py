@@ -45,23 +45,31 @@ class Telebot:
             return False
         if not request.json()['result']:
             return
-        print request.text
         parametersList = []
         for update in request.json()['result']:
             self.offset = update['update_id']
 
             if 'message' not in update or 'text' not in update['message']:
                 continue
+            print "___"
             message = update['message']
             print message
-            parameters = {'author_name': message['from']['first_name'],
-                          'chat_id': message['chat']['id'],
-                          'body': message['text'],
-                          'author_id': message['from']['id'],
-                          'date': message['date']}
-            parametersList.append(parameters)
+            print "___"
+
+            telegram_mes = {'author_name': message['from']['first_name'],
+                            'chat_id': message['chat']['id'],
+                            'body': message['text'],
+                            'author_id': message['from']['id'],
+                            'date': message['date'],
+                            'update_id': self.offset}
+            if 'forward_date' in message:
+                telegram_mes['forward'] = True
+            parametersList.append(telegram_mes)
+            '''
+            What a heck below?
             try:
-                log_event('from %s (id%s): "%s" with author: %s; time:%s' % parameters)
+                log_event('from %s (id%s): "%s" with author: %s; time:%s' % telegram_mes)
             except:
                 pass
+            '''
         return parametersList
