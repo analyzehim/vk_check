@@ -53,26 +53,33 @@ if __name__ == "__main__":
     cashDB = Cash()
     telegram_bot = Telebot()
     while True:
-        update_list = []
-        while True:
-            new_update = telegram_bot.get_updates()
-            if new_update:
-                update_list += new_update
-            else:
-                break  # this means, what no have new updates
+        try:
+            update_list = []
+            while True:
+                new_update = telegram_bot.get_updates()
+                if new_update:
+                    update_list += new_update
+                else:
+                    break  # this means, what no have new updates
 
-        if exit_check(update_list):
-                telegram_bot.send_text(telegram_bot.chat_id, "EXIT COMMAND")
-                log_event("EXIT COMMAND")
-                break
+            if exit_check(update_list):
+                    telegram_bot.send_text(telegram_bot.chat_id, "EXIT COMMAND")
+                    log_event("EXIT COMMAND")
+                    break
 
-        check_result = mes_check(update_list)
-        if check_result:
-                recipient_id = cashDB.get_user_id(check_result['recipient_name'])
-                text = check_result['text']
-                vk_bot.send_text(recipient_id, text)
+            check_result = mes_check(update_list)
+            if check_result:
+                    recipient_id = cashDB.get_user_id(check_result['recipient_name'])
+                    text = check_result['text']
+                    vk_bot.send_text(recipient_id, text)
 
-        for mes in get_unread_messages(vk_bot.get_mes()):
-                telegram_bot.send_text(telegram_bot.chat_id, str(mes))
-        time.sleep(vk_bot.interval)
+            for mes in get_unread_messages(vk_bot.get_mes()):
+                    telegram_bot.send_text(telegram_bot.chat_id, str(mes))
+            time.sleep(vk_bot.interval)
+        except KeyboardInterrupt:
+            print 'Interrupt by user..'
+            break
+        except Exception, e:
+            log_event(str(e))
+            
 
