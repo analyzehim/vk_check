@@ -4,14 +4,30 @@ from sqlite_proto import Cash
 from common_proto import VkMessage, log_event
 import time
 
+def get_attachment(vk_message):
+    if 'attachment' in vk_message:
+        if 'sticker' in vk_message['attachment']:
+            if 'photo_512' in vk_message['attachment']['sticker']:
+                return vk_message['attachment']['sticker']['photo_512']
+
+        elif 'photo' in vk_message['attachment']:
+            if 'src_big' in vk_message['attachment']['photo']:
+                return vk_message['attachment']['photo']['src_big']
+
+    log_event("MESSAGE WITHOUT ATTACHMENT: " + str(vk_message))
+    return ""
+
+
 
 def get_unread_messages(vk_response):  # check vk, and return unread messages
     unread_mes = []
     for vk_message in vk_response['response'][1:]:
+
         mes_text = vk_message['body'].encode('utf-8')
         mes_id = vk_message['mid']
         user_id = vk_message['uid']
         if vk_message['read_state'] == 0 and 'chat_id' not in vk_message:  # if message is unread, and not in chat
+            print vk_message
             if cashDB.check_message(mes_id):
                 continue
             else:
@@ -20,6 +36,8 @@ def get_unread_messages(vk_response):  # check vk, and return unread messages
                 if not username:
                     username = vk_bot.get_user(user_id)
                     cashDB.add_user(user_id, username)
+                if mes_text == '':
+                    mes_text = get_attachment(vk_message)
                 try:
                     unread_mes.append(VkMessage(mes_text, username.encode('utf-8')))
                 except:  # dirty hack for russian letters
