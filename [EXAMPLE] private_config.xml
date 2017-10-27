@@ -4,4 +4,5 @@
     <telegram_id>[Your telegram ID]</telegram_id>
     <vk_id>[Your vk ID]</vk_id>
     <vk_token>[Your vk token]</vk_token>
+    <ignor_chats>[CHAT1_ID];[CHAT2_ID]</ignor_chats>
 </config>

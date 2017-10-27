@@ -33,7 +33,6 @@ def log_event(text):
     f.close()
     return
 
-
 class VkMessage:
     def __init__(self, text='', user=''):
         self.text = text
@@ -47,12 +46,16 @@ class VkMessage:
         return len(self.str)
 
 
+def get_ignor_chats(text):
+    return text.splite(';')
+
 class Config:
     def __init__(self):
         tree = ET.parse('private_config.xml')
         root = tree.getroot()
         self.VkToken = root.findall('vk_token')[0].text
         self.TelegramToken = root.findall('telegram_token')[0].text
+        self.ignoring_chats = root.findall('ignor_chats')[0].text.split(';')
         proxy = root.findall('proxy')[0].text
         self.proxies = {
             "http": proxy,
