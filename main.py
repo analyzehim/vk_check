@@ -11,10 +11,10 @@ def get_unread_messages(vk_response):  # check vk, and return unread messages
         mes_text = vk_message['body'].encode('utf-8')
         mes_id = vk_message['mid']
         user_id = vk_message['uid']
-        if vk_message['read_state'] == 0:
-            if 'chat_id' in vk_message and str(vk_message['chat_id']) in vk_bot.ignoring_chats:  # if message is unread, and not in ignor
+        if vk_message['read_state'] == 0: # if message is unread
+            if 'chat_id' in vk_message and str(vk_message['chat_id']) in vk_bot.ignoring_chats:  # if message in ignor
                 continue
-            if 'uid' in vk_message and str(vk_message['uid']) in vk_bot.ignoring_chats:  # if message is unread, and not in ignor
+            if 'uid' in vk_message and str(vk_message['uid']) in vk_bot.ignoring_chats:  # if message in ignor
                 continue
             if cashDB.check_message(mes_id):
                 continue
