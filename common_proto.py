@@ -61,6 +61,10 @@ class VkMessage:
 def get_ignor_chats(text):
     return text.splite(';')
 
+COUNT = 10
+INTERVAL = 30
+
+
 class Config:
     def __init__(self):
         tree = ET.parse('private_config.xml')
@@ -84,7 +88,5 @@ class Config:
         self.VK_ADMIN = root.findall('vk_id')[0].text
         self.Telegram_URL = 'https://api.telegram.org/bot'  # HTTP Bot API URL
         self.VK_URL = 'https://api.vk.com/method/'
-        tree = ET.parse('config.xml')
-        root = tree.getroot()
-        self.count = int(root.findall('count')[0].text)
-        self.interval = int(root.findall('interval')[0].text)
+        self.count = COUNT
+        self.interval = INTERVAL
