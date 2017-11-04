@@ -5,6 +5,41 @@ from common_proto import VkMessage, log_event, get_exception
 import time
 
 
+def get_attachment(vk_message):
+    if 'attachment' in vk_message:
+        if 'sticker' in vk_message['attachment']:
+            if 'photo_512' in vk_message['attachment']['sticker']:
+                return vk_message['attachment']['sticker']['photo_512']
+
+        elif 'photo' in vk_message['attachment']:
+            if 'src_xxxbig' in vk_message['attachment']['photo']:
+                return vk_message['attachment']['photo']['src_xxxbig']
+            elif 'src_xxbig' in vk_message['attachment']['photo']:
+                return vk_message['attachment']['photo']['src_xxbig']
+            elif 'src_xbig' in vk_message['attachment']['photo']:
+                return vk_message['attachment']['photo']['src_xbig']
+            elif 'src_big' in vk_message['attachment']['photo']:
+                return vk_message['attachment']['photo']['src_big']
+            elif 'src' in vk_message['attachment']['photo']:
+                return vk_message['attachment']['photo']['src']
+            elif 'src_small' in vk_message['attachment']['photo']:
+                return vk_message['attachment']['photo']['src_small']
+            else:
+                log_event("IMAGE WITHOUT CORRECT SIZE: " + str(vk_message))
+                return "IMAGE WITHOUT CORRECT SIZE"
+
+        elif 'wall' in vk_message['attachment']:
+            if 'text' in vk_message['attachment']['wall']:
+                return vk_message['attachment']['wall']['text']
+    elif "fwd_messages" in vk_message:
+        print vk_message["fwd_messages"][0]
+        if "body" in vk_message["fwd_messages"][0]:
+            return "[FWD]: " + vk_message["fwd_messages"][0]["body"].encode('utf-8')
+    else:
+        log_event("MESSAGE WITHOUT ATTACHMENT: " + str(vk_message))
+        return "WITHOUT ATTACHMENT"
+
+
 def get_unread_messages(vk_response):  # check vk, and return unread messages
     unread_mes = []
     for vk_message in vk_response['response'][1:]:
@@ -24,6 +59,8 @@ def get_unread_messages(vk_response):  # check vk, and return unread messages
                 if not username:
                     username = vk_bot.get_user(user_id)
                     cashDB.add_user(user_id, username)
+                if mes_text == '':
+                    mes_text = get_attachment(vk_message)
                 try:
                     unread_mes.append(VkMessage(mes_text, username.encode('utf-8')))
                 except:  # dirty hack for russian letters
