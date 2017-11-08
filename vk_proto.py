@@ -1,25 +1,36 @@
 # -*- coding: cp1251 -*-
 
-from common_proto import *
+from common_proto import log_event, get_host
+import xml.etree.ElementTree as ET
 import requests
-
+COUNT = 10
+INTERVAL = 30
 
 class VkBot:
     def __init__(self):
-        config = Config()
-        self.proxy = config.proxyMode
-        if self.proxy:
-            self.proxies = config.proxies
-        self.vk_token = config.VkToken
-        self.URL = config.VK_URL
-        self.count = config.count
-        self.interval = config.interval
-        self.chat_id = config.VK_ADMIN
-        self.ignoring_chats = config.ignoring_chats
+        tree = ET.parse('private_config.xml')
+        root = tree.getroot()
+        self.vk_token = root.findall('vk_token')[0].text
+        self.URL = 'https://api.vk.com/method/'
+        self.count = COUNT
+        self.interval = INTERVAL
+        self.chat_id = root.findall('vk_id')[0].text
+        self.ignoring_chats = root.findall('ignor_chats')[0].text.split(';')
+        self.host = get_host()
+        proxy_url = root.findall('proxy')[0].text
+        self.proxies = {"http": proxy_url,"https": proxy_url}
+        try:
+            requests.get('https://www.ya.ru')
+            self.proxy = False
+        except:
+            proxies = self.proxies
+            requests.get('https://www.ya.ru', proxies=self.proxies)
+            self.proxy = True
+
         if not self.proxy:
-            log_event("VkBot Init completed, host: " + get_host())
+            log_event("VkBot Init completed, host: " + self.host)
         if self.proxy:
-            log_event("VkBot Init completed with proxy, host: " + get_host())
+            log_event("VkBot Init completed with proxy, host: " + self.host)
 
     def send_text(self, chat_id, text):
         log_event('VK sending to %s: %s' % (chat_id, text))  # Logging
@@ -69,3 +80,16 @@ class VkBot:
             log_event(request.text)
             return []
         return request.json()
+
+
+class VkMessage:
+    def __init__(self, text='', user=''):
+        self.text = text
+        self.user = user
+        self.str = '{0}: {1}'.format(self.user, self.text)
+
+    def __str__(self):
+        return self.str
+
+    def __len__(self):
+        return len(self.str)

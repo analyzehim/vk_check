@@ -1,17 +1,17 @@
 from telegram_proto import Telebot
-from vk_proto import VkBot
+from vk_proto import VkBot, VkMessage
 from sqlite_proto import Cash
-from common_proto import VkMessage, log_event, get_exception
+from common_proto import log_event, get_exception
 import time
 
 
-def get_attachment(vk_message):
+def get_attachment(vk_message):  # get attachment (photo, sticker, forward messages)
     if 'attachment' in vk_message:
         if 'sticker' in vk_message['attachment']:
             if 'photo_512' in vk_message['attachment']['sticker']:
                 return vk_message['attachment']['sticker']['photo_512']
 
-        elif 'photo' in vk_message['attachment']:
+        elif 'photo' in vk_message['attachment']:  # from higher resolution to lower
             if 'src_xxxbig' in vk_message['attachment']['photo']:
                 return vk_message['attachment']['photo']['src_xxxbig']
             elif 'src_xxbig' in vk_message['attachment']['photo']:
@@ -46,7 +46,7 @@ def get_unread_messages(vk_response):  # check vk, and return unread messages
         mes_text = vk_message['body'].encode('utf-8')
         mes_id = vk_message['mid']
         user_id = vk_message['uid']
-        if vk_message['read_state'] == 0: # if message is unread
+        if vk_message['read_state'] == 0:  # if message is unread
             if 'chat_id' in vk_message and str(vk_message['chat_id']) in vk_bot.ignoring_chats:  # if message in ignor
                 continue
             if 'uid' in vk_message and str(vk_message['uid']) in vk_bot.ignoring_chats:  # if message in ignor
@@ -73,7 +73,7 @@ def get_unread_messages(vk_response):  # check vk, and return unread messages
 def exit_check(update_list): # if you wanna terminate, just text exit to bot
     if update_list:
         for telegram_message in update_list:
-            if telegram_message['text'] =='exit':
+            if telegram_message['text'] == 'exit':
                 return True
     return False
 

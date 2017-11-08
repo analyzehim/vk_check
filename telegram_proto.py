@@ -1,22 +1,32 @@
 # -*- coding: utf-8 -*-
-from common_proto import *
+from common_proto import log_event, get_host
+import xml.etree.ElementTree as ET
 import requests
 
 
 class Telebot:
     def __init__(self):
-        config = Config()
-        self.proxy = config.proxyMode
+        tree = ET.parse('private_config.xml')
+        root = tree.getroot()
         self.offset = 0
-        self.TOKEN = config.TelegramToken
-        self.URL = config.Telegram_URL
-        if self.proxy:
-            self.proxies = config.proxies
-        self.chat_id = config.TELEGRAM_ADMIN
+        self.TOKEN = root.findall('telegram_token')[0].text
+        self.URL = 'https://api.telegram.org/bot'
+        self.chat_id = root.findall('telegram_id')[0].text
+        proxy_url = root.findall('proxy')[0].text
+        self.proxies = {"http": proxy_url,"https": proxy_url}
+        self.host = get_host()
+        try:
+            requests.get('https://www.ya.ru')
+            self.proxy = False
+        except:
+            proxies = self.proxies
+            requests.get('https://www.ya.ru', proxies=self.proxies)
+            self.proxy = True
+
         if not self.proxy:
-            log_event("Telebot init completed, host: " + get_host())
+            log_event("Telebot init completed, host: " + self.host)
         else:
-            log_event("Telebot init completed with proxy, host: " + get_host())
+            log_event("Telebot init completed with proxy, host: " + self.host)
 
     def send_text(self, chat_id, text):
         try:
