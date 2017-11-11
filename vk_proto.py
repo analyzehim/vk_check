@@ -4,7 +4,7 @@ from common_proto import log_event, get_host
 import xml.etree.ElementTree as ET
 import requests
 COUNT = 10
-INTERVAL = 30
+INTERVAL = 10
 
 class VkBot:
     def __init__(self):
@@ -66,6 +66,26 @@ class VkBot:
         name = '{0} {1}'.format(first_name, last_name )
         return name
 
+
+    def get_chat(self, chat_id):
+        log_event('get chat {0}'.format(chat_id))  # Logging
+        if not self.proxy:
+            request = requests.get(self.URL +
+                                   'messages.getChat?access_token={0}&chat_id={1}'.format(self.vk_token, chat_id)
+                                   ) # HTTP request
+        else:
+            request = requests.get(self.URL +
+                                   'messages.getChat?access_token={0}&chat_id={1}'.format(self.vk_token, chat_id),
+                                    proxies=self.proxies)  # HTTP request with proxy
+        if not request.status_code == 200:
+            log_event(request.text)
+            return []
+        print request.json()
+        chatname = request.json()['response']['title'].encode('utf-8')
+        name = '{0}'.format(chatname)
+        return name
+
+
     def get_mes(self):
         log_event('VK get messages')  # Logging
         if not self.proxy:
@@ -83,10 +103,14 @@ class VkBot:
 
 
 class VkMessage:
-    def __init__(self, text='', user=''):
+    def __init__(self, text='', user='', chat=''):
         self.text = text
         self.user = user
-        self.str = '{0}: {1}'.format(self.user, self.text)
+        self.chat = chat
+        if self.chat:
+            self.str = '{0}:{1}: {2}'.format(self.chat, self.user, self.text)
+        else:
+            self.str = '{0}: {1}'.format(self.user, self.text)
 
     def __str__(self):
         return self.str

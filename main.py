@@ -43,28 +43,58 @@ def get_attachment(vk_message):  # get attachment (photo, sticker, forward messa
 def get_unread_messages(vk_response):  # check vk, and return unread messages
     unread_mes = []
     for vk_message in vk_response['response'][1:]:
-        mes_text = vk_message['body'].encode('utf-8')
         mes_id = vk_message['mid']
-        user_id = vk_message['uid']
-        if vk_message['read_state'] == 0:  # if message is unread
-            if 'chat_id' in vk_message and str(vk_message['chat_id']) in vk_bot.ignoring_chats:  # if message in ignor
+
+        if cashDB.check_message(mes_id):
+            continue
+        if vk_message['read_state'] != 0:
+            continue
+        mes_text = vk_message['body'].encode('utf-8')
+        chat_type = 0
+
+        if 'chat_id' in vk_message:
+            chat_id = vk_message['chat_id']
+            if str(chat_id) in vk_bot.ignoring_chats:
                 continue
-            if 'uid' in vk_message and str(vk_message['uid']) in vk_bot.ignoring_chats:  # if message in ignor
+            user_id = vk_message['uid']
+            username = cashDB.check_user(user_id)
+            if not username:
+                username = vk_bot.get_user(user_id)
+                cashDB.add_user(user_id, username)
+
+            chatname = cashDB.check_chat(chat_id)
+            if not chatname:
+                chatname = vk_bot.get_chat(chat_id)
+                cashDB.add_chat(chat_id, chatname)
+
+            if mes_text == '':
+                mes_text = get_attachment(vk_message)
+            try:
+                unread_mes.append(VkMessage(mes_text, username.encode('utf-8'), chatname.encode('utf-8')))
+            except:  # dirty hack for russian letters
+                unread_mes.append(VkMessage(mes_text, username, chatname))
+            cashDB.add_message(mes_id, mes_text)
+
+        elif 'uid' in vk_message:
+            user_id = vk_message['uid']
+            if str(user_id) in vk_bot.ignoring_chats:
                 continue
-            if cashDB.check_message(mes_id):
-                continue
-            else:
-                cashDB.add_message(mes_id, mes_text)
-                username = cashDB.check_user(user_id)
-                if not username:
-                    username = vk_bot.get_user(user_id)
-                    cashDB.add_user(user_id, username)
-                if mes_text == '':
-                    mes_text = get_attachment(vk_message)
-                try:
-                    unread_mes.append(VkMessage(mes_text, username.encode('utf-8')))
-                except:  # dirty hack for russian letters
-                    unread_mes.append(VkMessage(mes_text, username))
+            username = cashDB.check_user(user_id)
+            if not username:
+                username = vk_bot.get_user(user_id)
+                cashDB.add_user(user_id, username)
+            if mes_text == '':
+                mes_text = get_attachment(vk_message)
+            try:
+                unread_mes.append(VkMessage(mes_text, username.encode('utf-8')))
+            except:  # dirty hack for russian letters
+                unread_mes.append(VkMessage(mes_text, username))
+            cashDB.add_message(mes_id, mes_text)
+
+        else:
+            log_event('Strange mes {0}'.format(vk_message))
+
+
     if not unread_mes:
         log_event('no new mes')
     return unread_mes
@@ -87,7 +117,6 @@ def check_ans(update_list):
             mes_text = telegram_message['text'].encode('utf-8')
             return {'recipient_name': recipient_name, 'text': mes_text}
     return False
-
 
 if __name__ == "__main__":
     vk_bot = VkBot()
