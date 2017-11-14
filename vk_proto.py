@@ -23,7 +23,6 @@ class VkBot:
             requests.get('https://www.ya.ru')
             self.proxy = False
         except:
-            proxies = self.proxies
             requests.get('https://www.ya.ru', proxies=self.proxies)
             self.proxy = True
 
@@ -36,12 +35,12 @@ class VkBot:
         log_event('VK sending to %s: %s' % (chat_id, text))  # Logging
         if not self.proxy:
             request = requests.get(self.URL +
-                                   'messages.send?access_token={0}&user_id={1}&message={2}'.format(self.vk_token, chat_id, text)) # HTTP request
+                                   'messages.send?access_token={0}&peer_id={1}&message={2}&v=5.38'.format(self.vk_token, chat_id, text)) # HTTP request
         else:
             request = requests.get(self.URL +
-                                   'messages.send?access_token={0}&user_id={1}&message={2}'.format(self.vk_token, chat_id, text),
+                                   'messages.send?access_token={0}&peer_id={1}&message={2}&v=5.38'.format(self.vk_token, chat_id, text),
                                     proxies=self.proxies)  # HTTP request with proxy
-        if not request.status_code == 200:
+        if (not request.status_code == 200) or ("error" in request.json()):
             log_event('ERROR:' + request.text)
             return False
         return True
@@ -60,7 +59,6 @@ class VkBot:
             log_event(request.text)
             return []
 
-        print request.json()
         first_name = request.json()['response'][0]['first_name'].encode('utf-8')
         last_name = request.json()['response'][0]['last_name'].encode('utf-8')
         name = '{0} {1}'.format(first_name, last_name )
@@ -80,7 +78,6 @@ class VkBot:
         if not request.status_code == 200:
             log_event(request.text)
             return []
-        print request.json()
         chatname = request.json()['response']['title'].encode('utf-8')
         name = '{0}'.format(chatname)
         return name
@@ -103,14 +100,15 @@ class VkBot:
 
 
 class VkMessage:
-    def __init__(self, text='', user='', chat=''):
+    def __init__(self, text='', user='', chat='', chat_title =''):
         self.text = text
         self.user = user
         self.chat = chat
+        self.chat_title = chat_title
         if self.chat:
-            self.str = '{0}:{1}: {2}'.format(self.chat, self.user, self.text)
+            self.str = '[{0}:{1}]: {2}'.format(self.chat, self.user, self.text)
         else:
-            self.str = '{0}: {1}'.format(self.user, self.text)
+            self.str = '[{0}]: {1}'.format(self.user, self.text)
 
     def __str__(self):
         return self.str

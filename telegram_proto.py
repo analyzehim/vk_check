@@ -19,7 +19,6 @@ class Telebot:
             requests.get('https://www.ya.ru')
             self.proxy = False
         except:
-            proxies = self.proxies
             requests.get('https://www.ya.ru', proxies=self.proxies)
             self.proxy = True
 
@@ -61,18 +60,14 @@ class Telebot:
 
             if 'message' not in update or 'text' not in update['message']:
                 continue
-            print "___"
             message = update['message']
-            print message
-            print "___"
-
-            telegram_mes = {'author_name': message['from']['first_name'],
-                            'chat_id': message['chat']['id'],
-                            'text': message['text'],
-                            'author_id': message['from']['id'],
-                            'date': message['date'],
-                            'update_id': self.offset}
             if 'reply_to_message' in message:
-                telegram_mes['reply_mes'] = message['reply_to_message']['text']
+                telegram_mes = {'author_name': message['from']['first_name'],
+                                'chat_id': message['chat']['id'],
+                                'text': message['text'],
+                                'author_id': message['from']['id'],
+                                'date': message['date'],
+                                'update_id': self.offset,
+                                'reply_mes': message['reply_to_message']['text']}
                 update_list.append(telegram_mes)
         return update_list

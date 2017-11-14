@@ -63,7 +63,7 @@ class Cash:
             return False
 
     def add_chat(self, chat_id, chatname):
-        self.cur.execute('''INSERT INTO  Chats(chat_id, chatname) VALUES ('{0}','{1}')'''.format(chat_id, chatname))
+        self.cur.execute('''INSERT OR REPLACE INTO  Chats(chat_id, chatname) VALUES ('{0}','{1}')'''.format(chat_id, chatname))
         self.con.commit()
         return
 
