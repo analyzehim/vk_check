@@ -4,7 +4,7 @@ from common_proto import log_event, get_host
 import xml.etree.ElementTree as ET
 import requests
 COUNT = 10
-INTERVAL = 10
+INTERVAL = 30
 
 class VkBot:
     def __init__(self):
@@ -84,7 +84,7 @@ class VkBot:
 
 
     def get_mes(self):
-        log_event('VK get messages')  # Logging
+        #log_event('VK get messages')  # Logging
         if not self.proxy:
             request = requests.get(self.URL +
                                    'messages.get?access_token={0}&count={1}'.format(self.vk_token, self.count)) # HTTP request

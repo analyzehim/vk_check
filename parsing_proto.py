@@ -54,7 +54,7 @@ def get_unread_messages(vk_bot, cashDB):  # check vk, and return unread messages
 
         if 'chat_id' in vk_message:
             chat_id = vk_message['chat_id']
-            chatname = vk_message['title'].encode('utf-8')
+            chatname = vk_message['title']
             if str(chat_id) in vk_bot.ignoring_chats:
                 continue
             chat_id += 2000000000
@@ -64,7 +64,7 @@ def get_unread_messages(vk_bot, cashDB):  # check vk, and return unread messages
                 username = vk_bot.get_user(user_id)
                 cashDB.add_user(user_id, username)
 
-            cashDB.add_chat(chat_id, chatname)
+            cashDB.add_chat(chat_id, chatname.encode('utf-8'))
 
             if mes_text == '':
                 mes_text = get_attachment(vk_message)
@@ -94,8 +94,8 @@ def get_unread_messages(vk_bot, cashDB):  # check vk, and return unread messages
             log_event('Strange mes {0}'.format(vk_message))
 
 
-    if not unread_mes:
-        log_event('no new mes')
+    #if not unread_mes:
+    #    log_event('no new mes')
     return unread_mes
 
 
